@@ -4,9 +4,10 @@ import pandas as pd
 import numpy as np
 
 from ArctanTransform import arctan_trans
+from AttributionSelecttion import select_attribute
 from Effective import time_one
 from EquilibriumIndex import equilibrium_index_DI, equilibrium_index_TED
-from EquilibriumParameter import feature_distribution,equilibrium_state_parameter_set
+from EquilibriumParameter import feature_distribution, equilibrium_state_parameter_set
 from StateParameter import state_parameter_set
 import matplotlib.pyplot as plt
 
@@ -22,22 +23,6 @@ no_region = len(data_attribute[:, 0])
 name_region = data_attribute[:, 0]
 
 ############################################
-# for choosing attributes
-############################################
-
-# attribute = [2,8,11,12,14,15]
-# attribute = [1,2,4,5]
-attribute = [8]#, 11, 12, 14, 15, 17, 18]
-# attribute = [19]
-# attribute = [2]
-
-
-
-no_attribute = len(attribute)
-data_attribute = data_attribute[:, attribute]
-
-
-############################################
 # daily data
 
 date_daily_raw = pd.read_csv("covid/daily.csv")
@@ -47,11 +32,30 @@ no_date = len(date_case[:, 0])
 
 daily_state = list(map(list, zip(*date_case)))
 
+############################################
+# for choosing attributes
+############################################
+time_record = []
+#start_time = time.time()
+# attribute = [2,8,11,12,14,15]
+# attribute = [1,2,4,5]
+#attribute = [8]#, 11, 12, 14, 15]
+# attribute = [2]
+num_attribution = np.shape(data_attribute[:,2:16])[1]
+attribute = select_attribute(num_attribution, data_attribute[:,2:16], daily_state, 0, h=100) # h is the length of training day
+
+
+no_attribute = len(attribute)
+data_attribute = data_attribute[:, attribute]
+
+
+
+
 
 ################################################
 ######### test     #############################
 ################################################
-
+start_time = time.time()
 
 # state paramater
 spss = []
@@ -77,13 +81,39 @@ for i in range(no_attribute):
 #esps = ((x / no_attribute + 1) + 1) / no_region
 esps = equilibrium_state_parameter_set(x,no_attribute)
 
+'''
+ES= np.array(esps)
+ES= ES.T
+np.array(ES)
+save = pd.DataFrame(ES, columns=['ES'])
+save.to_csv('ES.csv', index=False, header=False)
+'''
+
 # equilibrium index
 EI_DI = equilibrium_index_DI(spss[0],esps) # 0 is the first day. 1 is second day
 
 EI_TED = equilibrium_index_TED(spss[0],esps)
 
+'''
+ES_EI_DI= np.array(EI_DI)
+ES_EI_DI= ES_EI_DI.T
+np.array(ES_EI_DI)
+save = pd.DataFrame(ES_EI_DI, columns=['EI_DI'])
+save.to_csv('EI_DI.csv', index=False, header=False)
 
+ES_EI_TED= np.array(EI_TED)
+ES_EI_TED= ES_EI_TED.T
+np.array(ES_EI_TED)
+save = pd.DataFrame(ES_EI_TED, columns=['EI_TED'])
+save.to_csv('EI_TED.csv', index=False, header=False)
+'''
+end_time = time.time()  # 1657267201.6171696
 
+time1 = end_time - start_time
+time_record.append(time1)
+time_record = np.array(time_record)
+time_record = time_record.T
 
-
-
+np.array(time_record)
+save = pd.DataFrame(time_record, columns=['time'])
+save.to_csv('time.csv', index=False, header=False)
