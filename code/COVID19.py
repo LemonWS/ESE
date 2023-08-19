@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 from ArctanTransform import arctan_trans
-from AttributionSelecttion import select_attribute
+from AttributionSelection import select_attribute
 from Effective import time_one
 from EquilibriumIndex import equilibrium_index_DI, equilibrium_index_TED
 from EquilibriumParameter import feature_distribution, equilibrium_state_parameter_set
