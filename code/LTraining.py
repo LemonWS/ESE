@@ -1,8 +1,9 @@
 # this part is to calculate the equilibrium parameter adjustment matrix
 from itertools import count
+import numpy as np
 #,
 def L_parameters(state, state_p, n=10):
-    l = []
+    l = np.ones(n)
     if n is None:
         for i in count():
             l1 = (state[i] - state_p[i] + l)/2
