@@ -4,20 +4,21 @@ import pandas as pd
 import numpy as np
 
 from ArctanTransform import arctan_trans
-from AttributionSelection import select_attribute
+from AttributionSelecttion import select_attribute
 from Effective import time_one
 from EquilibriumIndex import equilibrium_index_DI, equilibrium_index_TED
 from EquilibriumParameter import feature_distribution, equilibrium_state_parameter_set
 from StateParameter import state_parameter_set
 import matplotlib.pyplot as plt
-
+from LTraining import L_parameters
 from ToCsv import dataToCsv
 from correlation import attribution_correlation, regression_models
 import time
 
 data_attribute_raw = pd.read_csv("covid/attributes.csv")
 
-data_attribute = np.array(data_attribute_raw)
+data_attribute = np.array(data_attribute_raw) # panel data
+
 
 no_region = len(data_attribute[:, 0])
 name_region = data_attribute[:, 0]
@@ -25,12 +26,16 @@ name_region = data_attribute[:, 0]
 ############################################
 # daily data
 
-date_daily_raw = pd.read_csv("covid/daily.csv")
+date_daily_raw = pd.read_csv("covid19/daily.csv") # row date, column regin
+date = pd.read_csv("covid19/date.csv") # from 25/1/2020
 
-date_case = np.array(date_daily_raw[1:,:])
-no_date = len(date_case[:, 0])
 
-daily_state = list(map(list, zip(*date_case)))
+#date_case = np.array(date_daily_raw[1:,:])
+no_date = len(date_daily_raw[1:, 0])
+
+#daily_state = list(map(list, zip(*date_case)))
+
+
 
 ############################################
 # for choosing attributes
@@ -59,8 +64,8 @@ start_time = time.time()
 
 # state paramater
 spss = []
-for i in range(no_date):
-    sps = state_parameter_set(daily_state[i])
+for i in range(no_date+1):
+    sps = state_parameter_set(date_daily_raw[i,1:])
     sps = sps.astype(float)
     spss.append(sps)
 
@@ -70,16 +75,40 @@ x_c = data_attribute
 y_c = spss[0] # 0 is the first day.
 correlates = attribution_correlation(3, x_c, y_c) # 3 is ols
 
-# equilibrium state
+# equilibrium state raw
 choice = 1
 x=0
-for i in range(no_attribute):
-    a = feature_distribution(data_attribute[:, i], correlates[i])
-    x += a
+r = 10 # the number of rolling windows
+esps_r = 0
+for n in range(r):    # rolling window
+    d = date[n]
+    for i in range(no_attribute):
+        ad = data_attribute.loc[data_attribute.iloc[:,'Date']==d,1:] # first column is the name of region
+        a = feature_distribution(data_attribute[:, i], correlates[i])
+        x += a
+    esps_r += equilibrium_state_parameter_set(x, no_attribute)
+    esps_r = esps_r / 2
 
 
 #esps = ((x / no_attribute + 1) + 1) / no_region
-esps = equilibrium_state_parameter_set(x,no_attribute)
+#esps_raw = equilibrium_state_parameter_set(x,no_attribute)
+
+# L training
+n = 10
+x = 0 # the date of start n+x not bigger than r
+input = spss[x:x+n]
+
+L = L_parameters(input,esps_r)
+
+# esps for test
+dt = date[x+n+1]
+for i in range(no_attribute):
+    ad = data_attribute.loc[data_attribute.iloc[:,'Date']==dt,1:] # first column is the name of region
+    a = feature_distribution(data_attribute[:, i], correlates[i])
+    x += a
+esps = (equilibrium_state_parameter_set(x, no_attribute) + L) / 2
+
+
 
 '''
 ES= np.array(esps)
