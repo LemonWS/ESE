@@ -2,7 +2,7 @@ import math
 import random
 import pandas as pd
 import numpy as np
-
+from Cointegration import cointegration
 from ArctanTransform import arctan_trans
 from AttributionSelecttion import select_attribute
 from Effective import time_one
@@ -78,9 +78,11 @@ correlates = attribution_correlation(3, x_c, y_c) # 3 is ols
 # equilibrium state raw
 choice = 1
 x=0
-r = 10 # the number of rolling windows
-esps_r = 0
-for n in range(r):    # rolling window
+#r = 10 # the number for rolling windows
+s = no_date
+esps=[]
+esps_raw = 0
+for n in range(s):
     d = date[n]
     for i in range(no_attribute):
         ad = data_attribute.loc[data_attribute.iloc[:,'Date']==d,1:] # first column is the name of region
@@ -88,25 +90,42 @@ for n in range(r):    # rolling window
         x += a
     esps_r += equilibrium_state_parameter_set(x, no_attribute)
     esps_r = esps_r / 2
+    esps.append(esps_r)
 
 
 #esps = ((x / no_attribute + 1) + 1) / no_region
 #esps_raw = equilibrium_state_parameter_set(x,no_attribute)
 
-# L training
+# training
 n = 10
-x = 0 # the date of start n+x not bigger than r
-input = spss[x:x+n]
+x = 0
+input_s = spss[x:x + n]
+input_e = esps[x:x + n]
 
-L = L_parameters(input,esps_r)
+while cointegration(input_e,input_s):
+    esps_output = []
+    #input = spss[x:x + n]
 
-# esps for test
-dt = date[x+n+1]
-for i in range(no_attribute):
-    ad = data_attribute.loc[data_attribute.iloc[:,'Date']==dt,1:] # first column is the name of region
-    a = feature_distribution(data_attribute[:, i], correlates[i])
-    x += a
-esps = (equilibrium_state_parameter_set(x, no_attribute) + L) / 2
+
+    for i in range(len(input_s)):
+        L = L_parameters(input_s, input_e)
+
+    esps_0 =  (input_e[x+n] + L)/2
+    for j in range(n-x):
+        esps_output.append(esps_0)
+    input_e = esps_output
+
+esps = input_e[x + n]
+
+
+    # esps for test
+    #dt = date[x + n + 1]
+    #for i in range(no_attribute):
+    #    ad = data_attribute.loc[data_attribute.iloc[:, 'Date'] == dt, 1:]  # first column is the name of region
+    #    a = feature_distribution(data_attribute[:, i], correlates[i])
+    #    x += a
+    #esps = (equilibrium_state_parameter_set(x, no_attribute) + L) / 2
+
 
 
 
