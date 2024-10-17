@@ -35,6 +35,11 @@ def attribution_correlation(model_num, attribute, state):
     return correlation
 
 
+def attribution_correlate_coe(model_num, attribute, state):
+    cor = regression_models(model_num, attribute, state)
+
+    return cor
+
 def regression_models(model_num, x_train, y_train):
     if model_num == 1:
         # Using Principal Components Regression to fit model
