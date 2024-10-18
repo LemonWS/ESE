@@ -43,6 +43,7 @@ from EquilibriumParameter import equilibrium_state_parameter_set
 #     return esps
 
 ### long run equilibrium training of esps with parameter l
+### Algorithm in the main text
 def long_run_equilibrium_l(esps_0,spss):
 
     #print(esps)
@@ -57,7 +58,7 @@ def long_run_equilibrium_l(esps_0,spss):
         esps = esps_0 - (l / 2)
 
 
-        if cointegration(esps,spss) == False:    ### break if esps and spss are in cointegration! Note: False
+        if cointegration(esps,spss) == False:    ### break if esps and spss are in cointegration! Note: False means the rejection of hypothesis, e.g. not in cointegration is false
             break
 
     return esps
