@@ -51,11 +51,11 @@ for i in no_name:
     data = part[start:end, 5].astype(float) ### 5 is hard code  target data column
     daily_data_raw.append(data)
 
-###  transpose the data matrix so each row is systems/parts at a particular time point, 
+###  Transpose the data matrix so each row is systems/parts at a particular time point, 
 ###  while each column is the time series of a system/part 
 daily_state = list(map(list, zip(*daily_data_raw)))
 
-### calculate the sum of all parts, e.g. sum of one row
+### Calculate the sum of all parts, e.g. sum of one row
 for i in range(len(daily_state)):
     total = sum(daily_state[i])
     daily_data_total_raw.append(total)
@@ -67,24 +67,32 @@ for i in range(len(daily_data_raw[0])):  # test_start+h_start-1 is t_0
     sps = sps.astype(float)
     spss.append(sps)
 
-### attribute selection based on
+### attribute selection based on Dis
 attribute_set = attribution_select_Dis(data_raw_attribute, spss, attribute_list)
 no_attribute = len(attribute_set)
 
+### data of selected attributes
 at = data_raw_attribute[:,attribute_set]
 
+### Calculate the correlation between the state parameter set and the last data point which is the prediction target 
+### 3 is the switch value for OLS
 correlates = attribution_correlate_coe(3, at, spss[-1])
 
-sum_cor = sum(abs(correlates))
+### sum of the absoluton values of correlations
+sum_cor = sum(abs(correlates))  ### sum_correlation
 
+### generate feature values for each attribute under all systems/parts
 x = 0
 for i in range(no_attribute):
     a = feature_distribution_up_0(at[:, i], correlates[i])
     x += a
 
+### equilibrium sps, initial value
 esps_0 = equilibrium_state_parameter_set(sum_cor, no_attribute, no_part, x)
 
+### long run equilibirum training
 esps = long_run_equilibrium_l(esps_0,spss)
 
+### prediction based on the trained esps
 p = ESE_predictor_system_ar(daily_data_total_raw,esps)
 
