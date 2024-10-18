@@ -36,29 +36,31 @@ attribute_list = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11}#, 12, 13, 14, 15, 16, 17, 18, 
 
 
 
-no_name = range(len(name_part))
+no_name = range(len(name_part)) # number of part names
 
-number_name = range(len(name_part))
+# number_name = range(len(name_part)) 
+daily_data_raw = []          #### !!! revise raw_data -> a matrix of raw records, each column represents a time unit, e.g. a day or an hour, each row represnts data of a part/system at different time units ###
 
-daily_data_raw = []
-
-daily_data_total_raw = []
+daily_data_total_raw = []    #### raw_data_sum -> 1D array, each element is the sum of all parts at a particular time point
 
 
-##### lord daily and attribute #####
-
+##### load daily data raw and attribute data #####
 for i in no_name:
-    share = pd.read_csv("demo/" + name_part[i] + ".csv")  #read the daily data
+    share = pd.read_csv("demo/" + name_part[i] + ".csv")   #read the daily data
     part = np.array(share)
-    data = part[start:end, 5].astype(float)
+    data = part[start:end, 5].astype(float) ### 5 is hard code  target data column
     daily_data_raw.append(data)
 
+###  transpose the data matrix so each row is systems/parts at a particular time point, 
+###  while each column is the time series of a system/part 
 daily_state = list(map(list, zip(*daily_data_raw)))
 
+### calculate the sum of all parts, e.g. sum of one row
 for i in range(len(daily_state)):
     total = sum(daily_state[i])
     daily_data_total_raw.append(total)
 
+### spss is a collection of sps, state parameter set
 spss = []
 for i in range(len(daily_data_raw[0])):  # test_start+h_start-1 is t_0
     sps = state_parameter_set(daily_state[i])
