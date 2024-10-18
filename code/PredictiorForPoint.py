@@ -17,10 +17,10 @@ def ESE_predictor_system(w, equilibrium):
         ps.append(p)
     return ps
 
-def ESE_predictor_system_ar(w, equilibrium):
+def ESE_predictor_system_ar(w, equilibrium,h):
     ps = []
     mod = AutoReg(w,lags=1).fit()
-    fcast = mod.forecast()
+    fcast = mod.forecast(h=1)
     #print(fcast)
     for i in range(len(equilibrium)):
         p = fcast * equilibrium[i]
