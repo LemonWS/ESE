@@ -94,5 +94,7 @@ esps_0 = equilibrium_state_parameter_set(sum_cor, no_attribute, no_part, x)
 esps = long_run_equilibrium_l(esps_0,spss)
 
 ### prediction based on the trained esps
-p = ESE_predictor_system_ar(daily_data_total_raw,esps)
+p = ESE_predictor_system_ar(daily_data_total_raw,esps)  ### default prediction distance = 1
+
+### p = daily_data_total_raw[-1]*esps ### prediction with just esps based on historical data
 
