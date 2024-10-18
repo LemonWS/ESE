@@ -5,22 +5,30 @@ import numpy as np
 
 from EquilibriumIndex import equilibrium_index_TED, equilibrium_index_DI
 from EquilibriumParameter import feature_distribution_up_0, equilibrium_state_parameter_set
-from correlation import attribution_correlate_coe
+from correlation import attribution_correlate_coe 
 
 def transpose_list(matrix):
     return [list(row) for row in zip(*matrix)]
-def attribution_select_TED(attributes, state, list):
-    EI = 1
-    no_part = len(attributes)
+
+### using TED function to select the most relevant attributes
+def attribution_select_TED(attributes, state, list):  #### attribution_select_TED -> attribute_select_TED
+    EI = 1  ### Set the initial EI as the maximum value of 1.  The actual EI of an attribute subset would be < 1.
+    
+    no_part = len(attributes)  ### number of parts --> revise the variable number <<<attributes>>>
     #print(no_part)
-    alt = subsets(list)
+    
+    alt = subsets(list)  ### list all possible subsets, complexity analysis, it looks like a factorial f(n!)
     #print(alt)
+    
     num = len(alt)
     #print(num)
+
+    ### search through all possible subsets to find the one with smallest EI value
     for i in range(1,num):
         at_column = attributes[:,alt[i]]
         no_attribute = len(alt[i])
         #print(no_attribute)
+        
         correlates = attribution_correlate_coe(3, at_column, state[-1])
         sum_cor = sum(abs(correlates))
         x = 0
@@ -41,7 +49,7 @@ def attribution_select_TED(attributes, state, list):
 
     return attribute_set
 
-
+### using Dis function to select the most relevant attributes
 def attribution_select_Dis(attributes, state, list):
     EI = 1
     no_part = len(attributes)
@@ -70,6 +78,7 @@ def attribution_select_Dis(attributes, state, list):
             attributeset = alt[i]
         else:
             EI = EI
+            
     return attributeset
 
 
