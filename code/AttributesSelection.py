@@ -5,7 +5,7 @@ import numpy as np
 
 from EquilibriumIndex import equilibrium_index_TED, equilibrium_index_DI
 from EquilibriumParameter import feature_distribution_up_0, equilibrium_state_parameter_set
-from correlation import attribution_correlate_coe 
+from correlation import attribution_correlate_coe   ### Revise package name
 
 def transpose_list(matrix):
     return [list(row) for row in zip(*matrix)]
@@ -53,10 +53,13 @@ def attribution_select_TED(attributes, state, list):  #### attribution_select_TE
 def attribution_select_Dis(attributes, state, list):
     EI = 1
     no_part = len(attributes)
+    
     alt = subsets(list)
     #print(alt)
+    
     num = len(alt)
     #print(num)
+    
     for i in range(1,num):
         at_column = attributes[:,alt[i]]
         no_attribute = len(alt[i])
@@ -79,7 +82,7 @@ def attribution_select_Dis(attributes, state, list):
         else:
             EI = EI
             
-    return attributeset
+    return attributeset  ### attributeSet  attribute_set
 
 
 
