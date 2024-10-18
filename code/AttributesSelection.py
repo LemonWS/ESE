@@ -85,7 +85,7 @@ def attribution_select_Dis(attributes, state, list):
     return attributeset  ### attributeSet  attribute_set
 
 
-
+### ?????? 
 def subsets(nums):
     result = [[]]
     for num in nums:
