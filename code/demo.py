@@ -22,7 +22,7 @@ start = -200  # ceg ipo only 60 days
 end = -100
 no_date = end - start
 
-######## lord daily data ################
+######## load daily data ################
 
 date = pd.read_csv("demo/A.csv")
 date = np.array(date)
