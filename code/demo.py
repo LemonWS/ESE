@@ -60,13 +60,14 @@ for i in range(len(daily_state)):
     total = sum(daily_state[i])
     daily_data_total_raw.append(total)
 
-### spss is a collection of sps, state parameter set
+### spss is a collection of sps, the state parameter set for one time point
 spss = []
 for i in range(len(daily_data_raw[0])):  # test_start+h_start-1 is t_0
     sps = state_parameter_set(daily_state[i])
     sps = sps.astype(float)
     spss.append(sps)
 
+### attribute selection based on
 attribute_set = attribution_select_Dis(data_raw_attribute, spss, attribute_list)
 no_attribute = len(attribute_set)
 
