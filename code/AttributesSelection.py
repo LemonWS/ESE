@@ -5,13 +5,13 @@ import numpy as np
 
 from EquilibriumIndex import equilibrium_index_TED, equilibrium_index_DI
 from EquilibriumParameter import feature_distribution_up_0, equilibrium_state_parameter_set
-from correlation import attribution_correlate_coe   ### Revise package name
+from Correlation import attribution_correlate_coe   ### Revise package name
 
 def transpose_list(matrix):
     return [list(row) for row in zip(*matrix)]
 
 ### using TED function to select the most relevant attributes
-def attribution_select_TED(attributes, state, list):  #### attribution_select_TED -> attribute_select_TED
+def attribution_select(method_choose, attributes, state, list):  #### attribution_select_TED -> attribute_select_TED
     EI = 1  ### Set the initial EI as the maximum value of 1.  The actual EI of an attribute subset would be < 1.
     
     no_part = len(attributes)  ### number of parts --> revise the variable number <<<attributes>>>
@@ -25,24 +25,31 @@ def attribution_select_TED(attributes, state, list):  #### attribution_select_TE
 
     ### search through all possible subsets to find the one with smallest EI value
     for i in range(1,num):
-        at_column = attributes[:,alt[i]]
-        no_attribute = len(alt[i])
+        selected_attribute = attributes[:,alt[i]]
+        number_attribute = len(alt[i])
         #print(no_attribute)
         
-        correlates = attribution_correlate_coe(3, at_column, state[-1])
+        correlates = attribution_correlate_coe(3, selected_attribute, state[-1])
         sum_cor = sum(abs(correlates))
         x = 0
-        for i in range(no_attribute):
-            a = feature_distribution_up_0(at_column[:, i], correlates[i])
+        for i in range(number_attribute):
+            a = feature_distribution_up_0(selected_attribute[:, i], correlates[i])
             #print(sum(a))
             x += a
             #print(x)
-        esps = equilibrium_state_parameter_set(sum_cor, no_attribute, no_part, x)
+        esps = equilibrium_state_parameter_set(sum_cor, number_attribute, no_part, x)
         #print(sum(esps))
 
-        EI_TED = equilibrium_index_TED(state[-1], esps)
-        if EI_TED < EI:
-            EI = EI_TED
+        if method_choose == 1:
+            EI_value = equilibrium_index_TED(state[-1], esps)  # the EI value calculated by Euclidean distance
+        elif method_choose == 2:
+            EI_value = equilibrium_index_DI(state[-1], esps)  # the EI value calculated by difference
+        else:
+            print("Wrong selection!")
+
+            
+        if EI_value < EI:
+            EI = EI_value
             attribute_set = alt[i]
         else:
             EI = EI
