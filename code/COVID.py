@@ -1,23 +1,25 @@
 import pandas as pd
 import numpy as np
-from AttributesSelection import attribution_select_TED, attribution_select_Dis, transpose_list
-from EquilibriumParameter import feature_distribution, feature_distribution_up_0, equilibrium_state_parameter_set
-from LongRunTraining import L_parameters, long_run_equilibrium, long_run_equilibrium_l
+from AttributesSelection import attribution_select_Dis, attribution_select
+from EquilibriumParameter import feature_distribution_up_0, equilibrium_state_parameter_set
+from LongRunTraining import long_run_equilibrium_l
 from PredictiorForPoint import ESE_predictor_system_ar
 from StateParameter import state_parameter_set
-from correlation import attribution_correlation, regression_models, attribution_correlate_coe
+from Correlation import attribution_correlate_coe
 import time
 
 
-no_part = 20#,79,320  # the number of all part
+number_part = 20#,79,320  # the number of all part
 
-data_raw_attribute = pd.read_csv("COVID/attribute/attribute_20.csv")
-#data_raw_attribute = pd.read_csv("COVID/attribute/attribute_79.csv")
-#data_raw_attribute = pd.read_csv("COVID/attribute/attribute_320.csv")
+multi_system = "region_20/" # "region_79/" "region_320/" # the type of multi_system
 
-data_raw_attribute = np.array(data_raw_attribute)
+raw_data_attribute = pd.read_csv("COVID/attribute/attribute_20.csv") # load the attribute for 20 region
+#raw_data_attribute = pd.read_csv("COVID/attribute/attribute_79.csv") # load the attribute for 20 region
+#raw_data_attribute = pd.read_csv("COVID/attribute/attribute_320.csv") # load the attribute for 20 region
 
-name_part = data_raw_attribute[:, 0]
+raw_data_attribute = np.array(raw_data_attribute)
+
+name_part = raw_data_attribute[:, 0]
 
 ###########################################
 # setting for time period
@@ -25,13 +27,13 @@ name_part = data_raw_attribute[:, 0]
 
 start = -200  # ceg ipo only 60 days
 end = -100
-no_date = end - start
+number_time_unit = end - start
 
 ######## lord daily data ################
 
-date = pd.read_csv("COVID/Alpine.csv")
-date = np.array(date)
-date = date[start:end, 0].astype(str)
+#date = pd.read_csv("COVID/Alpine.csv")
+#date = np.array(date)
+#date = date[start:end, 0].astype(str)
 
 ############################################
 # for choosing attributes
@@ -41,32 +43,35 @@ attribute_list = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11}#, 12, 13, 14, 15, 16, 17, 18, 
 #attribute_list = {2} only for 320
 
 
-no_name = range(len(name_part))
+#number_part = range(len(name_part))
 
-number_name = range(len(name_part))
+#number_name = range(len(name_part))
 
-daily_data_raw = []
+raw_data = []
 
-daily_data_total_raw = []
+raw_data_sum = []
 
 time_record = []
 
 ##### lord daily and attribute #####
+target_data = 4# select the target data
 
-for i in no_name:
-    share = pd.read_csv("COVID/" + name_part[i] + ".csv")  #read the daily data
+
+
+for i in range(number_part):
+    share = pd.read_csv("COVID/" + multi_system + name_part[i] + ".csv")  #read the daily data
     part = np.array(share)
-    data = part[start:end, 5].astype(float)
-    daily_data_raw.append(data)
+    data = part[start:end, target_data].astype(float)
+    raw_data.append(data)
 
-daily_state = list(map(list, zip(*daily_data_raw)))
+daily_state = list(map(list, zip(*raw_data)))
 
 for i in range(len(daily_state)):
     total = sum(daily_state[i])
-    daily_data_total_raw.append(total)
+    raw_data_sum.append(total)
 
 spss = []
-for i in range(len(daily_data_raw[0])):  # test_start+h_start-1 is t_0
+for i in range(len(raw_data[0])):  # test_start+h_start-1 is t_0
     sps = state_parameter_set(daily_state[i])
     sps = sps.astype(float)
     spss.append(sps)
@@ -90,26 +95,31 @@ for i in range(loop_time):
 
     start_time = time.time()
 
-    attribute_set = attribution_select_Dis(data_raw_attribute, spss, attribute_list)
+
+    method_choose = 1  # 1 is the EI method based on Euclidean distance, 2 is based on difference
+
+    attribute_set = attribution_select(method_choose,raw_data_attribute, spss, attribute_list)
     #attribute_list = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11}  # , 12, 13, 14, 15, 16, 17, 18, 19} # test time only
-    no_attribute = len(attribute_set)
+    number_attribute = len(attribute_set)
 
-    at = data_raw_attribute[:, attribute_set]
+    selected_attribute_set = raw_data_attribute[:, attribute_set]
 
-    correlates = attribution_correlate_coe(3, at, spss[-1])
+
+    model = 3  ### 3 is the switch value for OLS
+    correlates = attribution_correlate_coe(model, selected_attribute_set, spss[-1])
 
     sum_cor = sum(abs(correlates))
 
     x = 0
-    for i in range(no_attribute):
-        a = feature_distribution_up_0(at[:, i], correlates[i])
+    for i in range(number_attribute):
+        a = feature_distribution_up_0(selected_attribute_set[:, i], correlates[i])
         x += a
 
-    esps_0 = equilibrium_state_parameter_set(sum_cor, no_attribute, no_part, x)
+    esps_0 = equilibrium_state_parameter_set(sum_cor, number_attribute, number_part, x)
 
     esps = long_run_equilibrium_l(esps_0, spss)
 
-    p = ESE_predictor_system_ar(daily_data_total_raw, esps)
+    p = ESE_predictor_system_ar(raw_data_sum, esps)
 
     end_time = time.time()  # 1657267201.6171696
 
