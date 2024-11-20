@@ -49,17 +49,23 @@ def long_run_equilibrium_l(esps_0,spss):
     #print(esps)
     i = 0
     no_part = len(esps_0)  ### number of parts, esps_0 as the initial esps
+    esps_0 = np.zeros(no_part)
+    #print(esps_0)
     l = np.ones(no_part)   ### initialise all values of vector l to 1
+
+    esps = esps_0
 
     while True:
         for i in range(len(spss)):
-            l = (esps_0 - spss[i] + l) / 2
+            l = (esps - spss[i] + l) / 2
 
-        esps = esps_0 - (l / 2)
+        esps = esps - (l / 2)
 
 
         if cointegration(esps,spss) == False:    ### break if esps and spss are in cointegration! Note: False means the rejection of hypothesis, e.g. not in cointegration is false
             break
 
+        i += 1
     return esps
+
 
