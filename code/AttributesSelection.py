@@ -23,17 +23,22 @@ def attribution_select(method_choose, attributes, state, list):  #### attributio
     num = len(alt)
     #print(num)
 
+
     ### search through all possible subsets to find the one with smallest EI value
     for i in range(1,num):
         selected_attribute = attributes[:,alt[i]]
+
         number_attribute = len(alt[i])
+
+       # print(alt[i])
+
         #print(no_attribute)
         
         correlates = attribution_correlate_coe(3, selected_attribute, state[-1])
         sum_cor = sum(abs(correlates))
         x = 0
-        for i in range(number_attribute):
-            a = feature_distribution_up_0(selected_attribute[:, i], correlates[i])
+        for j in range(number_attribute):
+            a = feature_distribution_up_0(selected_attribute[:, j], correlates[j])
             #print(sum(a))
             x += a
             #print(x)
@@ -47,10 +52,13 @@ def attribution_select(method_choose, attributes, state, list):  #### attributio
         else:
             print("Wrong selection!")
 
-            
+        #print(alt[i])
+
         if EI_value < EI:
             EI = EI_value
             attribute_set = alt[i]
+            print(alt[i])
+            print(i)
         else:
             EI = EI
 

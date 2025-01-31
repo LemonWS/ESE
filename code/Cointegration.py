@@ -3,13 +3,24 @@ import numpy as np
 import statsmodels.tsa.stattools as ts
 import pandas as pd
 
+from PredictTest import pvalue
+
+
 def cointegration(ES,S):
     r = False
+    p = 0.05
+
     for i in range(len(S)):
         test = ts.coint(ES,S[i])
-        if test[1] > 0.05:
+        if test == None:
+            test = 0
+        #print(test[1])
+
+        if test[1] > p:
             r = True
-            print(r)
+            #print(r)
+            break
+
 
     return r
 

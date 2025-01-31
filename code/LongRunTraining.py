@@ -3,6 +3,7 @@ from itertools import count
 import numpy as np
 
 from Cointegration import cointegration
+from EquilibriumIndex import equilibrium_index_TED
 from EquilibriumParameter import equilibrium_state_parameter_set
 
 
@@ -44,7 +45,7 @@ from EquilibriumParameter import equilibrium_state_parameter_set
 
 ### long run equilibrium training of esps with parameter l
 ### Algorithm in the main text
-def long_run_equilibrium_l(esps_0,spss):
+def long_run_equilibrium_l(esps_0,spss,choose):
 
     #print(esps)
     i = 0
@@ -55,17 +56,35 @@ def long_run_equilibrium_l(esps_0,spss):
 
     esps = esps_0
 
-    while True:
-        for i in range(len(spss)):
-            l = (esps - spss[i] + l) / 2
+    if choose == 1:
+        while True:
+            for i in range(len(spss)):
+                l = (esps - spss[i] + l) / 2
 
-        esps = esps - (l / 2)
+            esps = esps - (l / 2)
+            print(esps)
+
+            if cointegration(esps,
+                             spss) == False:  ### break if esps and spss are in cointegration! Note: False means the rejection of hypothesis, e.g. not in cointegration is false
+                break
+
+            i += 1
+    elif choose == 2:
+        while True:
+            for i in range(len(spss)):
+                l = (esps - spss[i] + l) / 2
+
+            esps = esps - (l / 2)
+            print(esps)
+            EI = equilibrium_index_TED(spss[-1],esps)
+
+            if EI <  0.1:
+                break
 
 
-        if cointegration(esps,spss) == False:    ### break if esps and spss are in cointegration! Note: False means the rejection of hypothesis, e.g. not in cointegration is false
-            break
 
-        i += 1
+
+
     return esps
 
 

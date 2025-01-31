@@ -7,24 +7,24 @@ from PredictiorForPoint import ESE_predictor_system_ar
 from StateParameter import state_parameter_set
 from Correlation import attribution_correlate_coe
 
-raw_data_attribute = pd.read_csv("demo/attribute/try1.csv")
+raw_data_attribute = pd.read_csv("demo_er/attribute/try1.csv")
 
 raw_data_attribute = np.array(raw_data_attribute)
 
-number_part = 20# the number of all part
+number_part = 16# the number of all part
 name_part = raw_data_attribute[:, 0]
 
 ###########################################
 # setting for time period
 ###########################################
 
-start = -200  # ceg ipo only 60 days
+start = -100  # ceg ipo only 60 days
 end = -1
 number_time_unit = end - start
 
 ######## load daily data ################
 
-date = pd.read_csv("demo/A.csv")
+date = pd.read_csv("demo_er/AUD.csv")
 date = np.array(date)
 date = date[start:end, 0].astype(str)
 
@@ -48,7 +48,7 @@ raw_data_sum= []    #### raw_data_sum -> 1D array, each element is the sum of al
 target_data = 5# select the target variable data
 
 for i in range(number_part):
-    share = pd.read_csv("demo/" + name_part[i] + ".csv")   #read the daily data
+    share = pd.read_csv("demo_er/" + name_part[i] + ".csv")   #read the daily data
     part = np.array(share)
     data = part[start:end, target_data].astype(float) ### 5 is hard code  target data column
     #data = part[:, target_data].astype(float)  ### 5 is hard code  target data column
@@ -105,7 +105,7 @@ for i in range(number_attribute):
 esps_0 = equilibrium_state_parameter_set(sum_cor, number_attribute, number_part, x)
 
 ### long run equilibirum training
-esps = long_run_equilibrium_l(esps_0,spss,1)
+esps = long_run_equilibrium_l(esps_0,spss,2)
 
 ### prediction based on the trained esps
 p = ESE_predictor_system_ar(raw_data_sum,esps,3)  ### default prediction distance = 1, h is for setting the prediction distance

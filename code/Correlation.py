@@ -38,6 +38,7 @@ def attribution_correlation(model_num, attribute, state):
 def attribution_correlate_coe(model_num, attribute, state):
     cor = regression_models(model_num, attribute, state)
 
+
     return cor
 
 def regression_models(model_num, x_train, y_train):
@@ -55,9 +56,11 @@ def regression_models(model_num, x_train, y_train):
         model_OLS = LinearRegression()
         # when we need to remove intercept
         # model = LinearRegression(fit_intercept=False)
+
         model_OLS.fit(x_train, y_train)
         # obtained the coefficients
         coefficient_set = model_OLS.coef_
+
 
     else:
         coefficient_set = 0

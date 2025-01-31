@@ -21,14 +21,6 @@ raw_data_attribute = np.array(raw_data_attribute)
 
 name_part = raw_data_attribute[:, 0]
 
-###########################################
-# setting for time period
-###########################################
-
-start = -200  # ceg ipo only 60 days
-end = -100
-number_time_unit = end - start
-
 ######## lord daily data ################
 
 #date = pd.read_csv("COVID/Alpine.csv")
@@ -39,61 +31,56 @@ number_time_unit = end - start
 # for choosing attributes
 ############################################
 
+
 attribute_list = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11}#, 12, 13, 14, 15, 16, 17, 18, 19}
 #attribute_list = {2} only for 320
 
 
-#number_part = range(len(name_part))
 
-#number_name = range(len(name_part))
-
-raw_data = []
-
-raw_data_sum = []
 
 time_record = []
 
-##### lord daily and attribute #####
-target_data = 4# select the target data
+prediction = []
 
 
 
-for i in range(number_part):
-    share = pd.read_csv("COVID/" + multi_system + name_part[i] + ".csv")  #read the daily data
-    part = np.array(share)
-    data = part[start:end, target_data].astype(float)
-    raw_data.append(data)
 
-daily_state = list(map(list, zip(*raw_data)))
+for t in range(500):
 
-for i in range(len(daily_state)):
-    total = sum(daily_state[i])
-    raw_data_sum.append(total)
+    ###########################################
+    # setting for time period
+    ###########################################
 
-spss = []
-for i in range(len(raw_data[0])):  # test_start+h_start-1 is t_0
-    sps = state_parameter_set(daily_state[i])
-    sps = sps.astype(float)
-    spss.append(sps)
+    start = -50 + t  # ceg ipo only 60 days
+    end = -1 + t
+    number_time_unit = end - start
+    ######## load daily data ################
+    raw_data = []
+
+    raw_data_sum = []
+
+    ##### lord daily and attribute #####
+    target_data = 4  # select the target data
+
+    for i in range(number_part):
+        share = pd.read_csv("COVID/" + multi_system + name_part[i] + ".csv")  # read the daily data
+        part = np.array(share)
+        data = part[start:end, target_data].astype(float)
+        raw_data.append(data)
+
+    daily_state = list(map(list, zip(*raw_data)))
+
+    for i in range(len(daily_state)):
+        total = sum(daily_state[i])
+        raw_data_sum.append(total)
+
+    spss = []
+    for i in range(len(raw_data[0])):  # test_start+h_start-1 is t_0
+        sps = state_parameter_set(daily_state[i])
+        sps = sps.astype(float)
+        spss.append(sps)
 
 
-test_model_choice = 1  # if 1, no loop, 2 loop and only for select_stock_item = 2
-select_stock_item = 1  # 1 for all, 2 for select order, 3 for select random， 4 for select specific stocks
-loop_time_set = 100  # if 100, it means loop 100 times
-
-if test_model_choice == 1:
-    loop_time = 1
-else:
-    select_stock_item = 2
-    loop_time = loop_time_set
-
-select_order = 0  # if 10,it means first 10 stocks in order
-time_record = []
-
-for i in range(loop_time):
-    select_order += 5
-
-    start_time = time.time()
 
 
     method_choose = 1  # 1 is the EI method based on Euclidean distance, 2 is based on difference
@@ -103,6 +90,8 @@ for i in range(loop_time):
     number_attribute = len(attribute_set)
 
     selected_attribute_set = raw_data_attribute[:, attribute_set]
+
+    start_time = time.time()
 
 
     model = 3  ### 3 is the switch value for OLS
@@ -121,6 +110,8 @@ for i in range(loop_time):
 
     p = ESE_predictor_system_ar(raw_data_sum, esps)
 
+    prediction.append(p)
+
     end_time = time.time()  # 1657267201.6171696
 
     time1 = end_time - start_time
@@ -131,7 +122,10 @@ for i in range(loop_time):
 time_record = np.array(time_record)
 time_record = time_record.T
 
-
+result_record = np.array(prediction)
+np.array(result_record)
+save = pd.DataFrame(result_record)
+save.to_csv('result.csv', index=False, header=False)
 
 np.array(time_record)
 save = pd.DataFrame(time_record, columns=['time'])
