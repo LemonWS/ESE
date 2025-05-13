@@ -9,9 +9,11 @@ from PredictTest import pvalue
 def cointegration(ES,S):
     r = False
     p = 0.05
+    length = S.shape[0]
+    ES = np.tile(ES, (length, 1))
     
     for i in range(len(S)):
-        test = ts.coint(ES,S[i])
+        test = ts.coint(ES[i,:],S[i,:])
         if test == None:
             test = 0
         #print(test[1])
