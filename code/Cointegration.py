@@ -6,7 +6,7 @@ import pandas as pd
 from PredictTest import pvalue
 
 
-ef cointegration(ES, S):
+def cointegration(ES, S):
     r = False
     p = 0.05
     length = S.shape[0]
