@@ -88,7 +88,7 @@ selected_attribute_set = raw_data_attribute[:,selected_attribute_list]
 
 ### Calculate the correlation between the state parameter set and the last data point which is the prediction target 
 
-model = 3 ### 3 is the switch value for OLS
+model = 3 ### 3 is the switch value for MLE
 
 correlates = attribution_correlate_coe(model, selected_attribute_set, spss[-1])
 
