@@ -52,13 +52,13 @@ def regression_models(model_num, x_train, y_train):
 
     elif model_num == 3:
         # try to build the linear regression
-        model_OLS = LinearRegression()
+        model = LinearRegression()
         # when we need to remove intercept
         # model = LinearRegression(fit_intercept=False)
 
-        model_OLS.fit(x_train, y_train)
+        model.fit(x_train, y_train)
         # obtained the coefficients
-        coefficient_set = model_OLS.coef_
+        coefficient_set = model.coef_
 
 
     else:
