@@ -51,7 +51,6 @@ def regression_models(model_num, x_train, y_train):
         coefficient_set = RidgeRegression.ridge_regression(x_train, y_train)
 
     elif model_num == 3:
-        # normal OLS is ok
         # try to build the linear regression
         model_OLS = LinearRegression()
         # when we need to remove intercept
